@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MathTris - GCSE Maths Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+            margin: 0;
+            padding: 20px;
+            color: #01579b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #0277bd;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #0288d1;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .game-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        #game-board {
+            width: 300px;
+            height: 600px;
+            border: 3px solid #039be5;
+            background-color: rgba(178, 235, 242, 0.3);
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: grid;
+            grid-template-rows: repeat(20, 1fr);
+            grid-template-columns: repeat(10, 1fr);
+        }
+
+        .side-panel {
+            width: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .panel {
+            background-color: rgba(255, 255, 255, 0.7);
+            border: 2px solid #4fc3f7;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .panel h3 {
+            margin-top: 0;
+            color: #0277bd;
+            border-bottom: 1px solid #b3e5fc;
+            padding-bottom: 5px;
+        }
+
+        #next-problem {
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #01579b;
+            background-color: rgba(179, 229, 252, 0.3);
+            border-radius: 5px;
+        }
+
+        #score-display, #level-display {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0288d1;
+        }
+
+        #controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            background-color: #039be5;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            background-color: #0288d1;
+        }
+
+        .block {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-sizing: border-box;
+        }
+
+        .block.I { background-color: #00bcd4; }
+        .block.J { background-color: #1976d2; }
+        .block.L { background-color: #0288d1; }
+        .block.O { background-color: #0097a7; }
+        .block.S { background-color: #00838f; }
+        .block.T { background-color: #006064; }
+        .block.Z { background-color: #4dd0e1; }
+
+        .math-problem {
+            font-size: 14px;
+            text-align: center;
+            padding: 5px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 4px;
+            margin: 2px;
+        }
+
+        #answer-input {
+            padding: 8px;
+            border: 2px solid #4fc3f7;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 10px;
+        }
+
+        #feedback {
+            margin-top: 10px;
+            font-size: 14px;
+            min-height: 40px;
+            color: #d32f2f;
+        }
+
+        .correct {
+            color: #388e3c !important;
+        }
+
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            z-index: 10;
+        }
+
+        .game-over button {
+            margin-top: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>MathTris</h1>
+    <p class="subtitle">GCSE Maths Learning Game</p>
+    
+    <div class="game-container">
+        <div id="game-board"></div>
+        
+        <div class="side-panel">
+            <div class="panel">
+                <h3>Next Problem</h3>
+                <div id="next-problem"></div>
+            </div>
+            
+            <div class="panel">
+                <h3>Solve It!</h3>
+                <div id="current-problem" class="math-problem"></div>
+                <input type="text" id="answer-input" placeholder="Your answer...">
+                <div id="feedback"></div>
+            </div>
+            
+            <div class="panel">
+                <h3>Stats</h3>
+                <p>Score: <span id="score-display">0</span></p>
+                <p>Level: <span id="level-display">1</span></p>
+                <p>Problems Solved: <span id="solved-display">0</span></p>
+            </div>
+        </div>
+    </div>
+    
+    <div id="controls">
+        <button id="start-btn">Start Game</button>
+        <button id="pause-btn">Pause</button>
+    </div>
+    
+    <div id="game-over" class="game-over hidden">
+        <h2>Game Over!</h2>
+        <p>Your final score: <span id="final-score">0</span></p>
+        <button id="restart-btn">Play Again</button>
+    </div>
+
+    <script>
+        // Game elements
+        const gameBoard = document.getElementById('game-board');
+        const nextProblemDisplay = document.getElementById('next-problem');
+        const currentProblemDisplay = document.getElementById('current-problem');
+        const answerInput = document.getElementById('answer-input');
+        const feedbackDisplay = document.getElementById('feedback');
+        const scoreDisplay = document.getElementById('score-display');
+        const levelDisplay = document.getElementById('level-display');
+        const solvedDisplay = document.getElementById('solved-display');
+        const startBtn = document.getElementById('start-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const gameOverDisplay = document.getElementById('game-over');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // Game variables
+        let score = 0;
+        let level = 1;
+        let problemsSolved = 0;
+        let gameOver = false;
+        let paused = false;
+        let dropInterval;
+        let currentProblem = null;
+        let nextProblem = null;
+        let currentPiece = null;
+        let nextPiece = null;
+        let currentPosition = null;
+        let grid = Array(20).fill().map(() => Array(10).fill(0));
+
+        // GCSE Maths problems by difficulty level
+        const mathsProblems = [
+            // Level 1 (Foundation)
+            {
+                question: "3 × 7 + 5",
+                answer: "26",
+                explanation: "First multiply 3 × 7 = 21, then add 5 to get 26."
+            },
+            {
+                question: "12²",
+                answer: "144",
+                explanation: "12 squared is 12 × 12 = 144."
+            },
+            {
+                question: "Solve: 2x + 5 = 15",
+                answer: "5",
+                explanation: "Subtract 5 from both sides: 2x = 10, then divide by 2: x = 5."
+            },
+            {
+                question: "Area of rectangle with length 8cm, width 5cm",
+                answer: "40",
+                explanation: "Area = length × width = 8 × 5 = 40cm²."
+            },
+            {
+                question: "3/4 + 1/2",
+                answer: "1.25",
+                alternatives: ["5/4", "1 1/4"],
+                explanation: "Convert to decimals: 0.75 + 0.5 = 1.25, or find common denominator: 3/4 + 2/4 = 5/4."
+            },
+            
+            // Level 2 (Intermediate)
+            {
+                question: "Factorize: x² + 5x + 6",
+                answer: "(x+2)(x+3)",
+                alternatives: ["(x+3)(x+2)"],
+                explanation: "Find two numbers that multiply to 6 and add to 5: 2 and 3."
+            },
+            {
+                question: "Solve: 3(x - 4) = 15",
+                answer: "9",
+                explanation: "Divide both sides by 3: x - 4 = 5, then add 4: x = 9."
+            },
+            {
+                question: "Circumference of circle (r = 5cm, π = 3.14)",
+                answer: "31.4",
+                explanation: "C = 2πr = 2 × 3.14 × 5 = 31.4cm."
+            },
+            {
+                question: "Simplify: (3x²y) × (4xy³)",
+                answer: "12x³y⁴",
+                alternatives: ["12x^3y^4"],
+                explanation: "Multiply coefficients: 3×4=12, add x exponents: 2+1=3, add y exponents: 1+3=4."
+            },
+            {
+                question: "Mean of 5, 7, 8, 10, 10",
+                answer: "8",
+                explanation: "Sum is 40, divided by 5 numbers = 8."
+            },
+            
+            // Level 3 (Higher)
+            {
+                question: "Solve: 2x² - 8 = 0",
+                answer: "2,-2",
+                alternatives: ["±2", "2 and -2", "-2,2"],
+                explanation: "2x² = 8 → x² = 4 → x = ±2."
+            },
+            {
+                question: "Expand: (2x - 3)(x + 4)",
+                answer: "2x² + 5x - 12",
+                explanation: "FOIL method: 2x² + 8x - 3x - 12 = 2x² + 5x - 12."
+            },
+            {
+                question: "Find x: sin(x) = 0.5 (0° ≤ x ≤ 90°)",
+                answer: "30",
+                explanation: "sin(30°) = 0.5. The angle is 30 degrees."
+            },
+            {
+                question: "Solve simultaneous: x + y = 10, x - y = 2",
+                answer: "6,4",
+                alternatives: ["x=6 y=4", "6 and 4"],
+                explanation: "Add equations: 2x = 12 → x=6. Substitute: 6 + y = 10 → y=4."
+            },
+            {
+                question: "Probability of two heads in two coin tosses",
+                answer: "0.25",
+                alternatives: ["1/4", "25%"],
+                explanation: "Probability of head each time is 0.5, so 0.5 × 0.5 = 0.25."
+            }
+        ];
+
+        // Tetris pieces
+        const pieces = [
+            { shape: [[1, 1, 1, 1]], color: 'I' }, // I
+            { shape: [[1, 0, 0], [1, 1, 1]], color: 'J' }, // J
+            { shape: [[0, 0, 1], [1, 1, 1]], color: 'L' }, // L
+            { shape: [[1, 1], [1, 1]], color: 'O' }, // O
+            { shape: [[0, 1, 1], [1, 1, 0]], color: 'S' }, // S
+            { shape: [[0, 1, 0], [1, 1, 1]], color: 'T' }, // T
+            { shape: [[1, 1, 0], [0, 1, 1]], color: 'Z' }  // Z
+        ];
+
+        // Initialize game
+        function initGame() {
+            grid = Array(20).fill().map(() => Array(10).fill(0));
+            score = 0;
+            level = 1;
+            problemsSolved = 0;
+            gameOver = false;
+            paused = false;
+            
+            updateDisplays();
+            clearBoard();
+            generateNewProblem();
+            generateNewPiece();
+            
+            if (dropInterval) clearInterval(dropInterval);
+            dropInterval = setInterval(dropPiece, 1000 - (level * 50));
+        }
+
+        // Update all displays
+        function updateDisplays() {
+            scoreDisplay.textContent = score;
+            levelDisplay.textContent = level;
+            solvedDisplay.textContent = problemsSolved;
+        }
+
+        // Clear the game board
+        function clearBoard() {
+            gameBoard.innerHTML = '';
+        }
+
+        // Draw the game board
+        function drawBoard() {
+            clearBoard();
+            
+            // Draw existing blocks
+            for (let y = 0; y < 20; y++) {
+                for (let x = 0; x < 10; x++) {
+                    if (grid[y][x]) {
+                        const block = document.createElement('div');
+                        block.classList.add('block', `block.${grid[y][x]}`);
+                        block.style.gridRow = `${y + 1}`;
+                        block.style.gridColumn = `${x + 1}`;
+                        gameBoard.appendChild(block);
+                    }
+                }
+            }
+            
+            // Draw current piece
+            if (currentPiece) {
+                for (let y = 0; y < currentPiece.shape.length; y++) {
+                    for (let x = 0; x < currentPiece.shape[y].length; x++) {
+                        if (currentPiece.shape[y][x]) {
+                            const block = document.createElement('div');
+                            block.classList.add('block', `block.${currentPiece.color}`);
+                            block.style.gridRow = `${currentPosition.y + y + 1}`;
+                            block.style.gridColumn = `${currentPosition.x + x + 1}`;
+                            gameBoard.appendChild(block);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Generate a new math problem
+        function generateNewProblem() {
+            // Get problems appropriate for current level
+            const levelIndex = Math.min(Math.floor(level / 5), 2); // 0, 1, or 2
+            const levelProblems = mathsProblems.filter((_, index) => 
+                Math.floor(index / 5) === levelIndex
+            );
+            
+            // Select random problem
+            const randomIndex = Math.floor(Math.random() * levelProblems.length);
+            currentProblem = levelProblems[randomIndex];
+            currentProblemDisplay.textContent = currentProblem.question;
+            
+            // Generate next problem for display
+            const nextRandomIndex = Math.floor(Math.random() * levelProblems.length);
+            nextProblem = levelProblems[nextRandomIndex];
+            nextProblemDisplay.textContent = nextProblem.question;
+            
+            // Focus on answer input
+            answerInput.value = '';
+            answerInput.focus();
+            feedbackDisplay.textContent = '';
+            feedbackDisplay.classList.remove('correct');
+        }
+
+        // Generate a new Tetris piece
+        function generateNewPiece() {
+            if (nextPiece) {
+                currentPiece = nextPiece;
+            } else {
+                const randomIndex = Math.floor(Math.random() * pieces.length);
+                currentPiece = JSON.parse(JSON.stringify(pieces[randomIndex]));
+            }
+            
+            const randomIndex = Math.floor(Math.random() * pieces.length);
+            nextPiece = JSON.parse(JSON.stringify(pieces[randomIndex]));
+            
+            currentPosition = {
+                x: Math.floor(5 - currentPiece.shape[0].length / 2),
+                y: 0
+            };
+            
+            // Check if game over (no room for new piece)
+            if (checkCollision()) {
+                endGame();
+            }
+        }
+
+        // Check for collisions
+        function checkCollision() {
+            for (let y = 0; y < currentPiece.shape.length; y++) {
+                for (let x = 0; x < currentPiece.shape[y].length; x++) {
+                    if (currentPiece.shape[y][x]) {
+                        const newX = currentPosition.x + x;
+                        const newY = currentPosition.y + y;
+                        
+                        if (
+                            newX < 0 || 
+                            newX >= 10 || 
+                            newY >= 20 || 
+                            (newY >= 0 && grid[newY][newX])
+                        ) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        // Lock the current piece in place
+        function lockPiece() {
+            for (let y = 0; y < currentPiece.shape.length; y++) {
+                for (let x = 0; x < currentPiece.shape[y].length; x++) {
+                    if (currentPiece.shape[y][x]) {
+                        const newY = currentPosition.y + y;
+                        if (newY >= 0) {
+                            grid[newY][currentPosition.x + x] = currentPiece.color;
+                        }
+                    }
+                }
+            }
+            
+            // Check for completed rows
+            checkRows();
+            
+            // Generate new piece and problem
+            generateNewPiece();
+            generateNewProblem();
+        }
+
+        // Check for completed rows
+        function checkRows() {
+            let rowsCleared = 0;
+            
+            for (let y = 19; y >= 0; y--) {
+                if (grid[y].every(cell => cell !== 0)) {
+                    // Remove the row
+                    grid.splice(y, 1);
+                    // Add new empty row at top
+                    grid.unshift(Array(10).fill(0));
+                    rowsCleared++;
+                    y++; // Check the same row again (now with new content)
+                }
+            }
+            
+            if (rowsCleared > 0) {
+                // Add to score
+                const points = [0, 100, 300, 500, 800][rowsCleared] * level;
+                score += points;
+                problemsSolved += rowsCleared;
+                
+                // Check for level up
+                if (problemsSolved >= level * 5) {
+                    level++;
+                    clearInterval(dropInterval);
+                    dropInterval = setInterval(dropPiece, 1000 - (level * 50));
+                }
+                
+                updateDisplays();
+            }
+        }
+
+        // Move piece left
+        function moveLeft() {
+            if (paused || gameOver) return;
+            
+            currentPosition.x--;
+            if (checkCollision()) {
+                currentPosition.x++;
+            }
+            drawBoard();
+        }
+
+        // Move piece right
+        function moveRight() {
+            if (paused || gameOver) return;
+            
+            currentPosition.x++;
+            if (checkCollision()) {
+                currentPosition.x--;
+            }
+            drawBoard();
+        }
+
+        // Rotate piece
+        function rotate() {
+            if (paused || gameOver) return;
+            
+            // Transpose matrix
+            const originalShape = currentPiece.shape;
+            const rows = originalShape.length;
+            const cols = originalShape[0].length;
+            const newShape = Array(cols).fill().map(() => Array(rows).fill(0));
+            
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < cols; x++) {
+                    newShape[x][rows - 1 - y] = originalShape[y][x];
+                }
+            }
+            
+            const originalShapeBackup = currentPiece.shape;
+            currentPiece.shape = newShape;
+            
+            // If rotation causes collision, revert
+            if (checkCollision()) {
+                currentPiece.shape = originalShapeBackup;
+            }
+            
+            drawBoard();
+        }
+
+        // Drop piece down
+        function dropPiece() {
+            if (paused || gameOver) return;
+            
+            currentPosition.y++;
+            if (checkCollision()) {
+                currentPosition.y--;
+                lockPiece();
+            }
+            drawBoard();
+        }
+
+        // Hard drop (instant drop)
+        function hardDrop() {
+            if (paused || gameOver) return;
+            
+            while (!checkCollision()) {
+                currentPosition.y++;
+            }
+            currentPosition.y--;
+            lockPiece();
+            drawBoard();
+        }
+
+        // Check answer
+        function checkAnswer() {
+            const userAnswer = answerInput.value.trim();
+            let isCorrect = false;
+            
+            // Check against main answer and alternatives
+            if (userAnswer === currentProblem.answer) {
+                isCorrect = true;
+            } else if (currentProblem.alternatives) {
+                for (const alt of currentProblem.alternatives) {
+                    if (userAnswer === alt) {
+                        isCorrect = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (isCorrect) {
+                feedbackDisplay.textContent = "Correct! " + currentProblem.explanation;
+                feedbackDisplay.classList.add('correct');
+                score += 50 * level;
+                problemsSolved++;
+                
+                // Check for level up
+                if (problemsSolved >= level * 5) {
+                    level++;
+                    clearInterval(dropInterval);
+                    dropInterval = setInterval(dropPiece, 1000 - (level * 50));
+                }
+                
+                updateDisplays();
+                
+                // Hard drop the current piece
+                hardDrop();
+            } else {
+                feedbackDisplay.textContent = "Incorrect. Try again!";
+                feedbackDisplay.classList.remove('correct');
+            }
+        }
+
+        // End game
+        function endGame() {
+            gameOver = true;
+            clearInterval(dropInterval);
+            finalScoreDisplay.textContent = score;
+            gameOverDisplay.classList.remove('hidden');
+        }
+
+        // Event listeners
+        document.addEventListener('keydown', (e) => {
+            if (gameOver) return;
+            
+            switch (e.key) {
+                case 'ArrowLeft':
+                    moveLeft();
+                    break;
+                case 'ArrowRight':
+                    moveRight();
+                    break;
+                case 'ArrowDown':
+                    dropPiece();
+                    break;
+                case 'ArrowUp':
+                    rotate();
+                    break;
+                case ' ':
+                    hardDrop();
+                    break;
+                case 'Enter':
+                    checkAnswer();
+                    break;
+                case 'p':
+                case 'P':
+                    togglePause();
+                    break;
+            }
+        });
+
+        answerInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        function togglePause() {
+            paused = !paused;
+            pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+        }
+
+        startBtn.addEventListener('click', () => {
+            initGame();
+            startBtn.textContent = 'Restart';
+        });
+
+        pauseBtn.addEventListener('click', togglePause);
+
+        restartBtn.addEventListener('click', () => {
+            gameOverDisplay.classList.add('hidden');
+            initGame();
+        });
+
+        // Initialize on load
+        initGame();
+    </script>
+</body>
+</html>
