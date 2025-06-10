@@ -2,117 +2,194 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MathTris - GCSE Maths Game</title>
     <style>
+        :root {
+            --primary-color: #039be5;
+            --secondary-color: #0288d1;
+            --accent-color: #4fc3f7;
+            --dark-color: #01579b;
+            --light-color: #b2ebf2;
+            --success-color: #4caf50;
+            --error-color: #f44336;
+            --warning-color: #ff9800;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
             margin: 0;
-            padding: 20px;
-            color: #01579b;
+            padding: 10px;
+            color: var(--dark-color);
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            touch-action: manipulation;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 10px;
+            animation: fadeIn 1s ease-out;
         }
 
         h1 {
-            color: #0277bd;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            color: var(--primary-color);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
             margin-bottom: 5px;
+            font-size: 2rem;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
 
         .subtitle {
-            color: #0288d1;
+            color: var(--secondary-color);
             margin-top: 0;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            font-weight: 500;
         }
 
-        .game-container {
+        .game-area {
             display: flex;
-            gap: 20px;
-            justify-content: center;
             flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        #game-board-container {
+            position: relative;
+            width: 250px;
+            height: 500px;
         }
 
         #game-board {
-            width: 300px;
-            height: 600px;
-            border: 3px solid #039be5;
+            width: 100%;
+            height: 100%;
+            border: 3px solid var(--primary-color);
             background-color: rgba(178, 235, 242, 0.3);
             position: relative;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             display: grid;
             grid-template-rows: repeat(20, 1fr);
             grid-template-columns: repeat(10, 1fr);
+            border-radius: 6px;
+            overflow: hidden;
         }
 
         .side-panel {
-            width: 200px;
+            width: 250px;
             display: flex;
             flex-direction: column;
             gap: 15px;
         }
 
         .panel {
-            background-color: rgba(255, 255, 255, 0.7);
-            border: 2px solid #4fc3f7;
-            border-radius: 8px;
-            padding: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 2px solid var(--accent-color);
+            border-radius: 10px;
+            padding: 12px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .panel:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
 
         .panel h3 {
             margin-top: 0;
-            color: #0277bd;
-            border-bottom: 1px solid #b3e5fc;
-            padding-bottom: 5px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 6px;
+            font-size: 1.1rem;
         }
 
         #next-problem {
-            height: 100px;
+            height: 80px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
+            font-size: 1.2rem;
             font-weight: bold;
-            color: #01579b;
+            color: var(--dark-color);
             background-color: rgba(179, 229, 252, 0.3);
-            border-radius: 5px;
+            border-radius: 6px;
+            text-align: center;
+            padding: 8px;
         }
 
-        #score-display, #level-display {
-            font-size: 20px;
+        #score-display, #level-display, #solved-display, #combo-display {
+            font-size: 1.1rem;
             font-weight: bold;
-            color: #0288d1;
+            color: var(--secondary-color);
         }
 
-        #controls {
-            margin-top: 20px;
+        .controls {
             display: flex;
+            justify-content: center;
             gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
         }
 
         button {
-            background-color: #039be5;
+            background-color: var(--primary-color);
             color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
+            padding: 10px 16px;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
-            transition: background-color 0.2s;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 120px;
+            justify-content: center;
         }
 
         button:hover {
-            background-color: #0288d1;
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background-color: #b0bec5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         .block {
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.4);
             box-sizing: border-box;
+            transition: all 0.1s;
         }
 
         .block.I { background-color: #00bcd4; }
@@ -124,33 +201,56 @@
         .block.Z { background-color: #4dd0e1; }
 
         .math-problem {
-            font-size: 14px;
+            font-size: 1rem;
             text-align: center;
-            padding: 5px;
+            padding: 8px;
             background-color: rgba(255, 255, 255, 0.7);
-            border-radius: 4px;
-            margin: 2px;
+            border-radius: 6px;
+            margin: 5px 0;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         #answer-input {
-            padding: 8px;
-            border: 2px solid #4fc3f7;
-            border-radius: 5px;
-            font-size: 16px;
+            padding: 10px;
+            border: 2px solid var(--accent-color);
+            border-radius: 6px;
+            font-size: 0.9rem;
             width: 100%;
             box-sizing: border-box;
-            margin-top: 10px;
+            margin-top: 8px;
+            transition: all 0.3s;
+        }
+
+        #answer-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(3, 155, 229, 0.2);
         }
 
         #feedback {
-            margin-top: 10px;
-            font-size: 14px;
+            margin-top: 12px;
+            font-size: 0.9rem;
             min-height: 40px;
-            color: #d32f2f;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.3s;
         }
 
         .correct {
-            color: #388e3c !important;
+            color: var(--success-color);
+            font-weight: bold;
+            background-color: rgba(76, 175, 80, 0.1);
+            border-left: 3px solid var(--success-color);
+        }
+
+        .incorrect {
+            color: var(--error-color);
+            font-weight: bold;
+            background-color: rgba(244, 67, 54, 0.1);
+            border-left: 3px solid var(--error-color);
         }
 
         .game-over {
@@ -159,63 +259,442 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.8);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             color: white;
-            font-size: 24px;
-            z-index: 10;
+            font-size: 1.2rem;
+            z-index: 100;
+            border-radius: 6px;
+            animation: fadeIn 0.5s ease-out;
+            text-align: center;
+        }
+
+        .game-over h2 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .game-over p {
+            margin: 8px 0;
+            font-size: 1rem;
         }
 
         .game-over button {
             margin-top: 20px;
+            background-color: var(--success-color);
+            font-size: 1rem;
+            padding: 12px 24px;
+        }
+
+        .game-over button:hover {
+            background-color: #388e3c;
         }
 
         .hidden {
             display: none;
         }
+
+        #penguin-container {
+            position: relative;
+            width: 100px;
+            height: 120px;
+            margin: 0 auto;
+        }
+
+        #penguin {
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120"><ellipse cx="50" cy="80" rx="30" ry="40" fill="black"/><ellipse cx="50" cy="70" rx="25" ry="30" fill="white"/><circle cx="40" cy="60" r="3" fill="black"/><circle cx="60" cy="60" r="3" fill="black"/><path d="M45 65 Q50 70 55 65" stroke="black" fill="transparent" stroke-width="2"/><ellipse cx="50" cy="40" rx="20" ry="25" fill="black"/><ellipse cx="50" cy="35" rx="15" ry="20" fill="white"/><circle cx="35" cy="25" r="5" fill="orange"/><circle cx="65" cy="25" r="5" fill="orange"/></svg>');
+            background-repeat: no-repeat;
+            transition: all 0.3s;
+            transform-origin: bottom center;
+        }
+
+        .penguin-happy {
+            animation: bounce 0.5s infinite alternate;
+        }
+
+        .penguin-sad {
+            transform: rotate(10deg);
+            animation: shake 0.5s infinite alternate;
+        }
+
+        .penguin-celebrate {
+            animation: celebrate 1s infinite;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-8px); }
+        }
+
+        @keyframes shake {
+            0% { transform: rotate(10deg); }
+            100% { transform: rotate(-10deg); }
+        }
+
+        @keyframes celebrate {
+            0% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(10deg) scale(1.1); }
+            50% { transform: rotate(0deg) scale(1.2); }
+            75% { transform: rotate(-10deg) scale(1.1); }
+            100% { transform: rotate(0deg) scale(1); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        #combo-counter {
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--warning-color);
+            text-align: center;
+            margin-top: 8px;
+            opacity: 0;
+            transition: all 0.3s;
+            transform: scale(0.9);
+        }
+
+        .combo-active {
+            opacity: 1 !important;
+            transform: scale(1.1);
+        }
+
+        #timer-container {
+            height: 6px;
+            background-color: #e0e0e0;
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        #timer {
+            height: 100%;
+            background-color: var(--success-color);
+            border-radius: 3px;
+            width: 100%;
+            transition: width 0.1s linear, background-color 0.3s;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+        }
+
+        .how-to-play {
+            max-width: 100%;
+            margin: 20px auto;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .how-to-play h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            font-size: 1.3rem;
+        }
+
+        .how-to-play ol {
+            padding-left: 20px;
+        }
+
+        .how-to-play li {
+            margin-bottom: 8px;
+            line-height: 1.4;
+            font-size: 0.9rem;
+        }
+
+        .key {
+            display: inline-block;
+            padding: 2px 5px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-family: monospace;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+            font-size: 0.8rem;
+        }
+
+        .mobile-controls {
+            display: none;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 8px;
+            width: 100%;
+            max-width: 300px;
+            margin-top: 15px;
+            touch-action: manipulation;
+        }
+
+        .mobile-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 1.2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50px;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .mobile-btn:active {
+            background-color: var(--secondary-color);
+            transform: scale(0.95);
+        }
+
+        .mobile-btn-rotate {
+            grid-column: 2;
+            grid-row: 1;
+        }
+
+        .mobile-btn-left {
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        .mobile-btn-down {
+            grid-column: 2;
+            grid-row: 2;
+        }
+
+        .mobile-btn-right {
+            grid-column: 3;
+            grid-row: 2;
+        }
+
+        .mobile-btn-drop {
+            grid-column: 1 / span 3;
+            grid-row: 1;
+            font-size: 1rem;
+            padding: 8px;
+        }
+
+        /* Particle effects */
+        .confetti {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #f00;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .subtitle {
+                font-size: 0.9rem;
+            }
+            
+            #game-board-container {
+                width: 220px;
+                height: 440px;
+            }
+            
+            .side-panel {
+                width: 220px;
+            }
+            
+            .mobile-controls {
+                display: grid;
+            }
+            
+            .how-to-play {
+                padding: 12px;
+            }
+            
+            .how-to-play h2 {
+                font-size: 1.2rem;
+            }
+            
+            .how-to-play li {
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            #game-board-container {
+                width: 200px;
+                height: 400px;
+            }
+            
+            .side-panel {
+                width: 200px;
+            }
+            
+            .panel {
+                padding: 10px;
+            }
+            
+            .panel h3 {
+                font-size: 1rem;
+            }
+            
+            #next-problem {
+                font-size: 1rem;
+                height: 70px;
+            }
+            
+            .math-problem {
+                font-size: 0.9rem;
+            }
+            
+            button {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                min-width: 100px;
+            }
+            
+            .mobile-btn {
+                height: 45px;
+                font-size: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>MathTris</h1>
-    <p class="subtitle">GCSE Maths Learning Game</p>
-    
-    <div class="game-container">
-        <div id="game-board"></div>
+    <div class="container">
+        <header>
+            <h1>MathTris</h1>
+            <p class="subtitle">Combine Tetris with GCSE Maths Challenges!</p>
+        </header>
         
-        <div class="side-panel">
-            <div class="panel">
-                <h3>Next Problem</h3>
-                <div id="next-problem"></div>
+        <div class="game-area">
+            <div id="game-board-container">
+                <div id="game-board"></div>
+                <div id="game-over" class="game-over hidden">
+                    <h2>Game Over!</h2>
+                    <p>Your final score: <span id="final-score">0</span></p>
+                    <p>Problems solved: <span id="final-solved">0</span></p>
+                    <p>Highest combo: <span id="final-combo">0</span>x</p>
+                    <button id="restart-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                            <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                        </svg>
+                        Play Again
+                    </button>
+                </div>
             </div>
             
-            <div class="panel">
-                <h3>Solve It!</h3>
-                <div id="current-problem" class="math-problem"></div>
-                <input type="text" id="answer-input" placeholder="Your answer...">
-                <div id="feedback"></div>
-            </div>
-            
-            <div class="panel">
-                <h3>Stats</h3>
-                <p>Score: <span id="score-display">0</span></p>
-                <p>Level: <span id="level-display">1</span></p>
-                <p>Problems Solved: <span id="solved-display">0</span></p>
+            <div class="side-panel">
+                <div class="panel">
+                    <h3>Next Problem</h3>
+                    <div id="next-problem">Ready to play!</div>
+                    <div id="timer-container">
+                        <div id="timer"></div>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <h3>Solve It!</h3>
+                    <div id="current-problem" class="math-problem">Press Start Game to begin</div>
+                    <input type="text" id="answer-input" placeholder="Your answer..." disabled>
+                    <div id="feedback"></div>
+                    <div id="combo-counter"></div>
+                </div>
+                
+                <div class="panel">
+                    <h3>Stats</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-value" id="score-display">0</span>
+                            <span class="stat-label">Score</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="level-display">1</span>
+                            <span class="stat-label">Level</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="solved-display">0</span>
+                            <span class="stat-label">Solved</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="combo-display">0</span>
+                            <span class="stat-label">Combo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h3>Penny the Penguin</h3>
+                    <div id="penguin-container">
+                        <div id="penguin"></div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    
-    <div id="controls">
-        <button id="start-btn">Start Game</button>
-        <button id="pause-btn">Pause</button>
-    </div>
-    
-    <div id="game-over" class="game-over hidden">
-        <h2>Game Over!</h2>
-        <p>Your final score: <span id="final-score">0</span></p>
-        <button id="restart-btn">Play Again</button>
+        
+        <div class="controls">
+            <button id="start-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
+                </svg>
+                Start Game
+            </button>
+            <button id="pause-btn" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M6 3.5a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5zm4 0a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5z"/>
+                </svg>
+                Pause
+            </button>
+        </div>
+
+        <div class="mobile-controls">
+            <button class="mobile-btn mobile-btn-drop" id="mobile-drop">HARD DROP (SPACE)</button>
+            <button class="mobile-btn mobile-btn-rotate" id="mobile-rotate">↑</button>
+            <button class="mobile-btn mobile-btn-left" id="mobile-left">←</button>
+            <button class="mobile-btn mobile-btn-down" id="mobile-down">↓</button>
+            <button class="mobile-btn mobile-btn-right" id="mobile-right">→</button>
+        </div>
+
+        <div class="how-to-play">
+            <h2>How to Play</h2>
+            <ol>
+                <li><strong>Gameplay:</strong> Use <span class="key">←</span> <span class="key">→</span> arrows to move, <span class="key">↑</span> to rotate, <span class="key">↓</span> to drop faster, and <span class="key">Space</span> for instant drop.</li>
+                <li><strong>Math Problems:</strong> Solve the math problem shown to clear the current piece and earn points.</li>
+                <li><strong>Scoring:</strong> Earn more points for correct answers, combos, and quick responses.</li>
+                <li><strong>Level Up:</strong> Solve 10 problems to level up and increase game speed.</li>
+                <li><strong>Game Over:</strong> The game ends when blocks reach the top of the board.</li>
+            </ol>
+        </div>
     </div>
 
     <script>
@@ -228,11 +707,25 @@
         const scoreDisplay = document.getElementById('score-display');
         const levelDisplay = document.getElementById('level-display');
         const solvedDisplay = document.getElementById('solved-display');
+        const comboDisplay = document.getElementById('combo-display');
+        const comboCounter = document.getElementById('combo-counter');
         const startBtn = document.getElementById('start-btn');
         const pauseBtn = document.getElementById('pause-btn');
         const gameOverDisplay = document.getElementById('game-over');
         const finalScoreDisplay = document.getElementById('final-score');
+        const finalSolvedDisplay = document.getElementById('final-solved');
+        const finalComboDisplay = document.getElementById('final-combo');
         const restartBtn = document.getElementById('restart-btn');
+        const penguin = document.getElementById('penguin');
+        const timer = document.getElementById('timer');
+        const gameBoardContainer = document.getElementById('game-board-container');
+        
+        // Mobile controls
+        const mobileRotateBtn = document.getElementById('mobile-rotate');
+        const mobileLeftBtn = document.getElementById('mobile-left');
+        const mobileRightBtn = document.getElementById('mobile-right');
+        const mobileDownBtn = document.getElementById('mobile-down');
+        const mobileDropBtn = document.getElementById('mobile-drop');
 
         // Game variables
         let score = 0;
@@ -247,6 +740,13 @@
         let nextPiece = null;
         let currentPosition = null;
         let grid = Array(20).fill().map(() => Array(10).fill(0));
+        let combo = 0;
+        let highestCombo = 0;
+        let timerInterval;
+        let timeLeft = 100;
+        let isFirstGame = true;
+        let touchStartX = 0;
+        let touchStartY = 0;
 
         // GCSE Maths problems by difficulty level
         const mathsProblems = [
@@ -254,27 +754,31 @@
             {
                 question: "3 × 7 + 5",
                 answer: "26",
+                alternatives: ["twenty-six", "Twenty six"],
                 explanation: "First multiply 3 × 7 = 21, then add 5 to get 26."
             },
             {
                 question: "12²",
                 answer: "144",
+                alternatives: ["one hundred forty-four", "One hundred forty four"],
                 explanation: "12 squared is 12 × 12 = 144."
             },
             {
                 question: "Solve: 2x + 5 = 15",
                 answer: "5",
+                alternatives: ["x=5", "five", "Five"],
                 explanation: "Subtract 5 from both sides: 2x = 10, then divide by 2: x = 5."
             },
             {
                 question: "Area of rectangle with length 8cm, width 5cm",
                 answer: "40",
+                alternatives: ["40cm", "40 cm", "40cm²", "40 cm²"],
                 explanation: "Area = length × width = 8 × 5 = 40cm²."
             },
             {
                 question: "3/4 + 1/2",
                 answer: "1.25",
-                alternatives: ["5/4", "1 1/4"],
+                alternatives: ["5/4", "1 1/4", "1.250", "1¼"],
                 explanation: "Convert to decimals: 0.75 + 0.5 = 1.25, or find common denominator: 3/4 + 2/4 = 5/4."
             },
             
@@ -282,28 +786,31 @@
             {
                 question: "Factorize: x² + 5x + 6",
                 answer: "(x+2)(x+3)",
-                alternatives: ["(x+3)(x+2)"],
+                alternatives: ["(x+3)(x+2)", "(x + 2)(x + 3)", "(x + 3)(x + 2)"],
                 explanation: "Find two numbers that multiply to 6 and add to 5: 2 and 3."
             },
             {
                 question: "Solve: 3(x - 4) = 15",
                 answer: "9",
+                alternatives: ["x=9", "nine", "Nine"],
                 explanation: "Divide both sides by 3: x - 4 = 5, then add 4: x = 9."
             },
             {
                 question: "Circumference of circle (r = 5cm, π = 3.14)",
                 answer: "31.4",
+                alternatives: ["31.4cm", "31.4 cm", "31.40"],
                 explanation: "C = 2πr = 2 × 3.14 × 5 = 31.4cm."
             },
             {
                 question: "Simplify: (3x²y) × (4xy³)",
                 answer: "12x³y⁴",
-                alternatives: ["12x^3y^4"],
+                alternatives: ["12x^3y^4", "12x3y4"],
                 explanation: "Multiply coefficients: 3×4=12, add x exponents: 2+1=3, add y exponents: 1+3=4."
             },
             {
                 question: "Mean of 5, 7, 8, 10, 10",
                 answer: "8",
+                alternatives: ["eight", "Eight", "8.0"],
                 explanation: "Sum is 40, divided by 5 numbers = 8."
             },
             
@@ -311,29 +818,31 @@
             {
                 question: "Solve: 2x² - 8 = 0",
                 answer: "2,-2",
-                alternatives: ["±2", "2 and -2", "-2,2"],
+                alternatives: ["±2", "2 and -2", "-2,2", "x=2 and x=-2", "x = 2 and x = -2"],
                 explanation: "2x² = 8 → x² = 4 → x = ±2."
             },
             {
                 question: "Expand: (2x - 3)(x + 4)",
                 answer: "2x² + 5x - 12",
+                alternatives: ["2x^2+5x-12", "2x squared plus 5x minus 12"],
                 explanation: "FOIL method: 2x² + 8x - 3x - 12 = 2x² + 5x - 12."
             },
             {
                 question: "Find x: sin(x) = 0.5 (0° ≤ x ≤ 90°)",
                 answer: "30",
+                alternatives: ["30°", "30 degrees", "thirty"],
                 explanation: "sin(30°) = 0.5. The angle is 30 degrees."
             },
             {
                 question: "Solve simultaneous: x + y = 10, x - y = 2",
                 answer: "6,4",
-                alternatives: ["x=6 y=4", "6 and 4"],
+                alternatives: ["x=6 y=4", "6 and 4", "x=6,y=4"],
                 explanation: "Add equations: 2x = 12 → x=6. Substitute: 6 + y = 10 → y=4."
             },
             {
                 question: "Probability of two heads in two coin tosses",
                 answer: "0.25",
-                alternatives: ["1/4", "25%"],
+                alternatives: ["1/4", "25%", "one in four"],
                 explanation: "Probability of head each time is 0.5, so 0.5 × 0.5 = 0.25."
             }
         ];
@@ -355,6 +864,7 @@
             score = 0;
             level = 1;
             problemsSolved = 0;
+            combo = 0;
             gameOver = false;
             paused = false;
             
@@ -364,7 +874,24 @@
             generateNewPiece();
             
             if (dropInterval) clearInterval(dropInterval);
-            dropInterval = setInterval(dropPiece, 1000 - (level * 50));
+            dropInterval = setInterval(dropPiece, calculateDropSpeed());
+            
+            startBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/></svg> Restart Game`;
+            pauseBtn.disabled = false;
+            answerInput.disabled = false;
+            
+            resetPenguin();
+            
+            if (isFirstGame) {
+                isFirstGame = false;
+                currentProblemDisplay.textContent = "Solve math problems to clear blocks!";
+                nextProblemDisplay.textContent = "Use arrow keys to move";
+                feedbackDisplay.textContent = "Press Start Game to begin";
+            }
+        }
+
+        function calculateDropSpeed() {
+            return Math.max(100, 1000 - (level * 50));
         }
 
         // Update all displays
@@ -372,6 +899,7 @@
             scoreDisplay.textContent = score;
             levelDisplay.textContent = level;
             solvedDisplay.textContent = problemsSolved;
+            comboDisplay.textContent = combo;
         }
 
         // Clear the game board
@@ -414,41 +942,67 @@
 
         // Generate a new math problem
         function generateNewProblem() {
-            // Get problems appropriate for current level
-            const levelIndex = Math.min(Math.floor(level / 5), 2); // 0, 1, or 2
-            const levelProblems = mathsProblems.filter((_, index) => 
-                Math.floor(index / 5) === levelIndex
-            );
+            // Filter problems by level (simple logic: first 5 for level 1, next 5 for level 2, etc.)
+            const levelRange = Math.min(level - 1, 2); // We only have 3 levels of problems
+            const startIdx = levelRange * 5;
+            const endIdx = startIdx + 5;
+            const levelProblems = mathsProblems.slice(startIdx, endIdx);
             
-            // Select random problem
-            const randomIndex = Math.floor(Math.random() * levelProblems.length);
-            currentProblem = levelProblems[randomIndex];
+            // If we have a next problem queued, make it current
+            if (nextProblem) {
+                currentProblem = nextProblem;
+                nextProblem = null;
+            } else {
+                // Otherwise get a new random problem
+                currentProblem = levelProblems[Math.floor(Math.random() * levelProblems.length)];
+            }
+            
+            // Generate next problem
+            nextProblem = levelProblems[Math.floor(Math.random() * levelProblems.length)];
+            
+            // Update displays
             currentProblemDisplay.textContent = currentProblem.question;
-            
-            // Generate next problem for display
-            const nextRandomIndex = Math.floor(Math.random() * levelProblems.length);
-            nextProblem = levelProblems[nextRandomIndex];
             nextProblemDisplay.textContent = nextProblem.question;
             
-            // Focus on answer input
-            answerInput.value = '';
-            answerInput.focus();
-            feedbackDisplay.textContent = '';
-            feedbackDisplay.classList.remove('correct');
+            // Start timer
+            startTimer();
+        }
+
+        // Start the problem timer
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timeLeft = 100;
+            timer.style.width = '100%';
+            timer.style.backgroundColor = var('--success-color');
+            
+            timerInterval = setInterval(() => {
+                timeLeft -= 0.5;
+                timer.style.width = `${timeLeft}%`;
+                
+                // Change color as time runs out
+                if (timeLeft < 30) {
+                    timer.style.backgroundColor = var('--error-color');
+                } else if (timeLeft < 60) {
+                    timer.style.backgroundColor = var('--warning-color');
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleWrongAnswer();
+                }
+            }, 50);
         }
 
         // Generate a new Tetris piece
         function generateNewPiece() {
-            if (nextPiece) {
-                currentPiece = nextPiece;
-            } else {
-                const randomIndex = Math.floor(Math.random() * pieces.length);
-                currentPiece = JSON.parse(JSON.stringify(pieces[randomIndex]));
+            if (!nextPiece) {
+                nextPiece = pieces[Math.floor(Math.random() * pieces.length)];
             }
             
-            const randomIndex = Math.floor(Math.random() * pieces.length);
-            nextPiece = JSON.parse(JSON.stringify(pieces[randomIndex]));
+            currentPiece = nextPiece;
+            nextPiece = pieces[Math.floor(Math.random() * pieces.length)];
             
+            // Start position (centered at top)
             currentPosition = {
                 x: Math.floor(5 - currentPiece.shape[0].length / 2),
                 y: 0
@@ -464,14 +1018,14 @@
         function checkCollision() {
             for (let y = 0; y < currentPiece.shape.length; y++) {
                 for (let x = 0; x < currentPiece.shape[y].length; x++) {
-                    if (currentPiece.shape[y][x]) {
+                    if (currentPiece.shape[y][x] !== 0) {
                         const newX = currentPosition.x + x;
                         const newY = currentPosition.y + y;
                         
                         if (
                             newX < 0 || 
                             newX >= 10 || 
-                            newY >= 20 || 
+                            newY >= 20 ||
                             (newY >= 0 && grid[newY][newX])
                         ) {
                             return true;
@@ -488,8 +1042,10 @@
                 for (let x = 0; x < currentPiece.shape[y].length; x++) {
                     if (currentPiece.shape[y][x]) {
                         const newY = currentPosition.y + y;
+                        const newX = currentPosition.x + x;
+                        
                         if (newY >= 0) {
-                            grid[newY][currentPosition.x + x] = currentPiece.color;
+                            grid[newY][newX] = currentPiece.color;
                         }
                     }
                 }
@@ -498,9 +1054,9 @@
             // Check for completed rows
             checkRows();
             
-            // Generate new piece and problem
+            // Generate new piece
             generateNewPiece();
-            generateNewProblem();
+            drawBoard();
         }
 
         // Check for completed rows
@@ -519,19 +1075,13 @@
             }
             
             if (rowsCleared > 0) {
-                // Add to score
-                const points = [0, 100, 300, 500, 800][rowsCleared] * level;
-                score += points;
-                problemsSolved += rowsCleared;
-                
-                // Check for level up
-                if (problemsSolved >= level * 5) {
-                    level++;
-                    clearInterval(dropInterval);
-                    dropInterval = setInterval(dropPiece, 1000 - (level * 50));
-                }
-                
+                // Add score for cleared rows
+                const rowPoints = [0, 100, 300, 500, 800][rowsCleared] * level;
+                score += rowPoints;
                 updateDisplays();
+                
+                // Show combo effect
+                showComboEffect(`Cleared ${rowsCleared} row${rowsCleared > 1 ? 's' : ''}! +${rowPoints}`);
             }
         }
 
@@ -542,8 +1092,9 @@
             currentPosition.x--;
             if (checkCollision()) {
                 currentPosition.x++;
+            } else {
+                drawBoard();
             }
-            drawBoard();
         }
 
         // Move piece right
@@ -553,38 +1104,60 @@
             currentPosition.x++;
             if (checkCollision()) {
                 currentPosition.x--;
+            } else {
+                drawBoard();
             }
-            drawBoard();
         }
 
         // Rotate piece
-        function rotate() {
+        function rotatePiece() {
             if (paused || gameOver) return;
             
-            // Transpose matrix
+            // Transpose matrix then reverse each row to rotate 90 degrees
             const originalShape = currentPiece.shape;
             const rows = originalShape.length;
             const cols = originalShape[0].length;
-            const newShape = Array(cols).fill().map(() => Array(rows).fill(0));
             
+            // Create new rotated shape
+            const newShape = Array(cols).fill().map(() => Array(rows).fill(0));
             for (let y = 0; y < rows; y++) {
                 for (let x = 0; x < cols; x++) {
                     newShape[x][rows - 1 - y] = originalShape[y][x];
                 }
             }
             
-            const originalShapeBackup = currentPiece.shape;
+            const originalPosition = {...currentPosition};
+            const originalShapeRef = currentPiece.shape;
+            
             currentPiece.shape = newShape;
             
-            // If rotation causes collision, revert
-            if (checkCollision()) {
-                currentPiece.shape = originalShapeBackup;
+            // Adjust position if rotation causes piece to go out of bounds
+            if (currentPosition.x < 0) {
+                currentPosition.x = 0;
+            } else if (currentPosition.x + newShape[0].length > 10) {
+                currentPosition.x = 10 - newShape[0].length;
             }
             
-            drawBoard();
+            if (checkCollision()) {
+                // Try wall kicks - move left/right to fit
+                const kicks = [-1, 1, -2, 2];
+                for (const kick of kicks) {
+                    currentPosition.x = originalPosition.x + kick;
+                    if (!checkCollision()) {
+                        drawBoard();
+                        return;
+                    }
+                }
+                
+                // If no kick works, revert rotation
+                currentPosition.x = originalPosition.x;
+                currentPiece.shape = originalShapeRef;
+            } else {
+                drawBoard();
+            }
         }
 
-        // Drop piece down
+        // Drop piece one row
         function dropPiece() {
             if (paused || gameOver) return;
             
@@ -596,7 +1169,7 @@
             drawBoard();
         }
 
-        // Hard drop (instant drop)
+        // Hard drop (instant drop to bottom)
         function hardDrop() {
             if (paused || gameOver) return;
             
@@ -608,57 +1181,153 @@
             drawBoard();
         }
 
-        // Check answer
-        function checkAnswer() {
-            const userAnswer = answerInput.value.trim();
-            let isCorrect = false;
+        // Handle correct answer
+        function handleCorrectAnswer() {
+            // Clear the timer
+            clearInterval(timerInterval);
             
-            // Check against main answer and alternatives
-            if (userAnswer === currentProblem.answer) {
-                isCorrect = true;
-            } else if (currentProblem.alternatives) {
-                for (const alt of currentProblem.alternatives) {
-                    if (userAnswer === alt) {
-                        isCorrect = true;
-                        break;
-                    }
-                }
+            // Add to score based on time left
+            const timeBonus = Math.floor(timeLeft / 10);
+            const basePoints = 100 * level;
+            const comboBonus = combo > 0 ? Math.floor(combo * 20 * level) : 0;
+            const totalPoints = basePoints + timeBonus + comboBonus;
+            
+            score += totalPoints;
+            problemsSolved++;
+            combo++;
+            
+            if (combo > highestCombo) {
+                highestCombo = combo;
             }
             
-            if (isCorrect) {
-                feedbackDisplay.textContent = "Correct! " + currentProblem.explanation;
-                feedbackDisplay.classList.add('correct');
-                score += 50 * level;
-                problemsSolved++;
+            // Check for level up (every 10 problems)
+            if (problemsSolved >= level * 10) {
+                level++;
+                // Increase drop speed
+                clearInterval(dropInterval);
+                dropInterval = setInterval(dropPiece, calculateDropSpeed());
                 
-                // Check for level up
-                if (problemsSolved >= level * 5) {
-                    level++;
-                    clearInterval(dropInterval);
-                    dropInterval = setInterval(dropPiece, 1000 - (level * 50));
-                }
-                
-                updateDisplays();
-                
-                // Hard drop the current piece
-                hardDrop();
+                // Show level up message
+                feedbackDisplay.innerHTML = `<span class="correct">LEVEL UP! Now level ${level}</span>`;
             } else {
-                feedbackDisplay.textContent = "Incorrect. Try again!";
-                feedbackDisplay.classList.remove('correct');
+                // Show success message
+                feedbackDisplay.innerHTML = `<span class="correct">Correct! +${totalPoints} (${basePoints} + ${timeBonus} time + ${comboBonus} combo)</span><br>${currentProblem.explanation}`;
             }
+            
+            // Show combo if applicable
+            if (combo > 1) {
+                comboCounter.textContent = `${combo}x COMBO!`;
+                comboCounter.classList.add('combo-active');
+                setTimeout(() => comboCounter.classList.remove('combo-active'), 1000);
+            }
+            
+            // Make penguin happy
+            penguin.className = 'penguin-celebrate';
+            setTimeout(resetPenguin, 2000);
+            
+            // Clear the current piece (as reward for correct answer)
+            currentPiece = null;
+            currentPosition = null;
+            
+            // Update displays and generate new problem
+            updateDisplays();
+            generateNewProblem();
+            drawBoard();
+            
+            // Focus answer input for next problem
+            answerInput.value = '';
+            answerInput.focus();
+        }
+
+        // Handle wrong answer
+        function handleWrongAnswer() {
+            combo = 0;
+            feedbackDisplay.innerHTML = `<span class="incorrect">Incorrect! The answer was ${currentProblem.answer}</span><br>${currentProblem.explanation}`;
+            
+            // Make penguin sad
+            penguin.className = 'penguin-sad';
+            setTimeout(resetPenguin, 2000);
+            
+            // Generate new problem
+            generateNewProblem();
+            
+            // Focus answer input for next try
+            answerInput.value = '';
+            answerInput.focus();
+        }
+
+        // Show combo effect
+        function showComboEffect(text) {
+            comboCounter.textContent = text;
+            comboCounter.classList.add('combo-active');
+            setTimeout(() => comboCounter.classList.remove('combo-active'), 1000);
+        }
+
+        // Reset penguin animation
+        function resetPenguin() {
+            penguin.className = 'penguin-happy';
         }
 
         // End game
         function endGame() {
             gameOver = true;
             clearInterval(dropInterval);
+            clearInterval(timerInterval);
+            
+            // Show game over screen
             finalScoreDisplay.textContent = score;
+            finalSolvedDisplay.textContent = problemsSolved;
+            finalComboDisplay.textContent = highestCombo;
             gameOverDisplay.classList.remove('hidden');
+            
+            // Disable controls
+            answerInput.disabled = true;
+            pauseBtn.disabled = true;
+        }
+
+        // Pause game
+        function togglePause() {
+            if (gameOver) return;
+            
+            paused = !paused;
+            
+            if (paused) {
+                clearInterval(dropInterval);
+                clearInterval(timerInterval);
+                pauseBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09z"/></svg> Resume`;
+                feedbackDisplay.textContent = "Game Paused";
+            } else {
+                dropInterval = setInterval(dropPiece, calculateDropSpeed());
+                startTimer();
+                pauseBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M6 3.5a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5zm4 0a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5z"/></svg> Pause`;
+                feedbackDisplay.textContent = "Enter your answer above";
+            }
         }
 
         // Event listeners
+        startBtn.addEventListener('click', initGame);
+        pauseBtn.addEventListener('click', togglePause);
+        restartBtn.addEventListener('click', () => {
+            gameOverDisplay.classList.add('hidden');
+            initGame();
+        });
+
+        answerInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !paused && !gameOver) {
+                const userAnswer = answerInput.value.trim();
+                const correctAnswers = [currentProblem.answer, ...(currentProblem.alternatives || [])];
+                
+                if (correctAnswers.some(ans => ans.toLowerCase() === userAnswer.toLowerCase())) {
+                    handleCorrectAnswer();
+                } else {
+                    handleWrongAnswer();
+                }
+            }
+        });
+
+        // Keyboard controls
         document.addEventListener('keydown', (e) => {
-            if (gameOver) return;
+            if (paused || gameOver) return;
             
             switch (e.key) {
                 case 'ArrowLeft':
@@ -671,46 +1340,79 @@
                     dropPiece();
                     break;
                 case 'ArrowUp':
-                    rotate();
+                    rotatePiece();
                     break;
                 case ' ':
                     hardDrop();
                     break;
-                case 'Enter':
-                    checkAnswer();
-                    break;
-                case 'p':
-                case 'P':
-                    togglePause();
-                    break;
             }
         });
 
-        answerInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                checkAnswer();
+        // Mobile controls
+        mobileLeftBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            moveLeft();
+        });
+        
+        mobileRightBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            moveRight();
+        });
+        
+        mobileDownBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            dropPiece();
+        });
+        
+        mobileRotateBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            rotatePiece();
+        });
+        
+        mobileDropBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            hardDrop();
+        });
+
+        // Touch controls for swipe
+        gameBoardContainer.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+        
+        gameBoardContainer.addEventListener('touchmove', (e) => {
+            if (!touchStartX || !touchStartY || paused || gameOver) return;
+            
+            const touchEndX = e.touches[0].clientX;
+            const touchEndY = e.touches[0].clientY;
+            const diffX = touchStartX - touchEndX;
+            const diffY = touchStartY - touchEndY;
+            
+            // Determine primary direction
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                // Horizontal swipe
+                if (diffX > 5) {
+                    moveLeft();
+                } else if (diffX < -5) {
+                    moveRight();
+                }
+            } else {
+                // Vertical swipe
+                if (diffY > 5) {
+                    rotatePiece();
+                } else if (diffY < -5) {
+                    hardDrop();
+                }
             }
+            
+            // Reset touch coordinates
+            touchStartX = 0;
+            touchStartY = 0;
+            e.preventDefault();
         });
 
-        function togglePause() {
-            paused = !paused;
-            pauseBtn.textContent = paused ? 'Resume' : 'Pause';
-        }
-
-        startBtn.addEventListener('click', () => {
-            initGame();
-            startBtn.textContent = 'Restart';
-        });
-
-        pauseBtn.addEventListener('click', togglePause);
-
-        restartBtn.addEventListener('click', () => {
-            gameOverDisplay.classList.add('hidden');
-            initGame();
-        });
-
-        // Initialize on load
-        initGame();
+        // Initial setup
+        drawBoard();
     </script>
 </body>
 </html>
